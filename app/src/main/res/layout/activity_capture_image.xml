@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CaptureImageActivity">
+    tools:context=".activity.CaptureImageActivity">
 
     <com.otaliastudios.cameraview.CameraView
         android:id="@+id/camera"
@@ -13,13 +13,13 @@
         android:keepScreenOn="true"
         app:cameraAudio="off"
         app:cameraExperimental="false"
-        app:cameraFacing="back"
         app:cameraFlash="auto"
         app:cameraGestureLongTap="autoFocus"
         app:cameraGesturePinch="zoom"
         app:cameraGestureScrollHorizontal="zoom"
         app:cameraGestureScrollVertical="zoom"
         app:cameraGestureTap="autoFocus"
+        app:cameraFacing="back"
         app:cameraHdr="off"
         app:cameraMode="picture"
         app:cameraRequestPermissions="true"
@@ -42,5 +42,15 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
+
+    <ImageButton
+        android:id="@+id/cameraFacingButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="30dp"
+        android:layout_marginBottom="40dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/ic_switch_camera_black_24dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

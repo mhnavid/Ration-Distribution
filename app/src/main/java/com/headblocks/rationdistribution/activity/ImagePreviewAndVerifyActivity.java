@@ -1,4 +1,4 @@
-package com.headblocks.rationdistribution;
+package com.headblocks.rationdistribution.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -9,15 +9,33 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.SystemClock;
+import android.text.LoginFilter;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.headblocks.rationdistribution.DataConnectivity;
+import com.headblocks.rationdistribution.R;
+import com.headblocks.rationdistribution.api.ApiClient;
+import com.headblocks.rationdistribution.api.ApiInterface;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ImagePreviewAndVerifyActivity extends AppCompatActivity {
 
@@ -25,10 +43,14 @@ public class ImagePreviewAndVerifyActivity extends AppCompatActivity {
     Button sendButton, cancelButton;
     ProgressDialog progressDialog;
 
+    private static ApiInterface apiInterface;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_preview_and_verify);
+
+        apiInterface= ApiClient.getApiClient().create(ApiInterface.class);
 
         imageView       = findViewById(R.id.imagePreview);
         sendButton      = findViewById(R.id.sendButton);
@@ -39,7 +61,7 @@ public class ImagePreviewAndVerifyActivity extends AppCompatActivity {
         progressDialog.setMessage("Loading...");
         progressDialog.setCancelable(false);
 
-        String imagePath = getIntent().getStringExtra("imgPath");
+        final String imagePath = getIntent().getStringExtra("imgPath");
         if (imagePath != null){
             getImagePath(imagePath);
         }
@@ -47,8 +69,11 @@ public class ImagePreviewAndVerifyActivity extends AppCompatActivity {
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showFailedDialog();
-                sendImageToServer();
+                if (DataConnectivity.haveNetworkConnection(getApplicationContext())){
+                    sendImageToServer(imagePath);
+                } else {
+                    Toast.makeText(getApplicationContext(), "Please check your internet connectivity.", Toast.LENGTH_LONG).show();
+                }
             }
         });
 
@@ -63,26 +88,55 @@ public class ImagePreviewAndVerifyActivity extends AppCompatActivity {
 
 
 
-    private void sendImageToServer(){
+    private void sendImageToServer(String imagePath){
         progressDialog.show();
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(4000);
-                    progressDialog.dismiss();
-                } catch (Exception e) {
-                    e.printStackTrace();
+        if (!imagePath.equals("")){
+            File file = new File(imagePath);
+            RequestBody fileReqBody = RequestBody.create(MediaType.parse("image/*"), file);
+            MultipartBody.Part part = MultipartBody.Part.createFormData("unknown_face", file.getName(), fileReqBody);
+            Call<ResponseBody> call = apiInterface.sendFaceImage(part);
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    Log.d("response", String.valueOf(response));
+                    if (response.code() == 200){
+                        progressDialog.dismiss();
+                        try {
+                            String responseMsg = response.body().string();
+                            JSONObject jsonObject = new JSONObject(responseMsg);
+                            boolean error = jsonObject.getBoolean("error");
+                            if (error){
+                                Toast.makeText(getApplicationContext(), "Please try again.", Toast.LENGTH_LONG).show();
+                            } else {
+                                boolean identifyStatus = jsonObject.getBoolean("identify_status");
+                                if (identifyStatus){
+                                    showSuccessDialog();
+                                } else {
+                                    showFailedDialog();
+                                }
+                            }
+                        } catch (IOException | JSONException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        progressDialog.dismiss();
+                        Toast.makeText(getApplicationContext(), "Please try again.", Toast.LENGTH_LONG).show();
+                    }
                 }
-            }
-        });
-        thread.start();
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    progressDialog.dismiss();
+                    Toast.makeText(getApplicationContext(), "Please try again later.", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
     }
 
     private void getImagePath(String path) {
         Bitmap myBitmap = BitmapFactory.decodeFile(path);
         if (myBitmap.getHeight() > myBitmap.getWidth()){
-            imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+            imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
         }
         imageView.setImageBitmap(myBitmap);
     }

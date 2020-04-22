@@ -1,4 +1,4 @@
-package com.headblocks.rationdistribution;
+package com.headblocks.rationdistribution.activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,10 +20,12 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.headblocks.rationdistribution.R;
 import com.otaliastudios.cameraview.CameraException;
 import com.otaliastudios.cameraview.CameraListener;
 import com.otaliastudios.cameraview.CameraView;
 import com.otaliastudios.cameraview.PictureResult;
+import com.otaliastudios.cameraview.controls.Facing;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -32,7 +34,7 @@ import java.io.FileOutputStream;
 public class CaptureImageActivity extends AppCompatActivity {
 
     CameraView cameraView;
-    ImageButton captureImageButton;
+    ImageButton captureImageButton, cameraFacingButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +43,7 @@ public class CaptureImageActivity extends AppCompatActivity {
 
         cameraView          = findViewById(R.id.camera);
         captureImageButton  = findViewById(R.id.btnCaptureImage);
+        cameraFacingButton  = findViewById(R.id.cameraFacingButton);
         cameraView.setLifecycleOwner(this);
 
         cameraView.addCameraListener(new CameraListener() {
@@ -60,6 +63,17 @@ public class CaptureImageActivity extends AppCompatActivity {
             @Override
             public void onCameraError(@NonNull CameraException exception) {
                 Toast.makeText(getApplicationContext(), exception.toString(), Toast.LENGTH_LONG).show();
+            }
+        });
+
+        cameraFacingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (cameraView.getFacing() == Facing.BACK){
+                    cameraView.setFacing(Facing.FRONT);
+                } else {
+                    cameraView.setFacing(Facing.BACK);
+                }
             }
         });
 

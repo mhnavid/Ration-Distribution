@@ -1,4 +1,4 @@
-package com.headblocks.rationdistribution;
+package com.headblocks.rationdistribution.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -10,6 +10,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+
+import com.headblocks.rationdistribution.R;
 
 import java.util.ArrayList;
 import java.util.List;
