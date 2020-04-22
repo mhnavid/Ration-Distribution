@@ -32,14 +32,14 @@ public class MainActivity extends AppCompatActivity {
         passwordText = findViewById(R.id.passwordEditText);
         loginButton  = findViewById(R.id.loginButton);
 
-        usernameText.setText("Test");
-        passwordText.setText("Demo");
+        usernameText.setText("Admin");
+        passwordText.setText("admin");
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (usernameText.getText().toString().equals("Test") &&
-                        passwordText.getText().toString().equals("Demo")){
+                if (usernameText.getText().toString().equals("Admin") &&
+                        passwordText.getText().toString().equals("admin")){
                     saveName(usernameText.getText().toString().trim());
                     Intent intent = new Intent(MainActivity.this, LocationSelectionActivity.class);
                     startActivity(intent);
