@@ -7,14 +7,11 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.text.LoginFilter;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +33,7 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.http.POST;
 
 public class ImagePreviewAndVerifyActivity extends AppCompatActivity {
 
@@ -112,10 +110,13 @@ public class ImagePreviewAndVerifyActivity extends AppCompatActivity {
                                 Toast.makeText(getApplicationContext(), "Please try again.", Toast.LENGTH_LONG).show();
                             } else {
                                 boolean identifyStatus = jsonObject.getBoolean("identify_status");
+                                String name = jsonObject.getString("user_name");
+                                String userId = jsonObject.getString("user_id");
                                 if (identifyStatus){
-                                    showSuccessDialog();
+                                    String lastUpdatedDate = jsonObject.getString("last_updated_date");
+                                    showFinalDialog("Matched with database.", name, lastUpdatedDate, userId);
                                 } else {
-                                    showFailedDialog();
+                                    showFinalDialog("First visit.", name, "", userId);
                                 }
                             }
                         } catch (IOException | JSONException e) {
@@ -145,57 +146,81 @@ public class ImagePreviewAndVerifyActivity extends AppCompatActivity {
         imageView.setImageBitmap(myBitmap);
     }
 
-    private void showSuccessDialog(){
+    private void showFinalDialog(String msg, String name, String date, final String userId){
         final Dialog dialog = new Dialog(ImagePreviewAndVerifyActivity.this);
         dialog.setCancelable(false);
         dialog.setContentView(R.layout.final_dialog_view);
 
-        LinearLayout linearLayout = dialog.findViewById(R.id.successOrFailedLayout);
-        linearLayout.setBackgroundColor(Color.parseColor("#00c853"));
+        TextView identificationMsg = dialog.findViewById(R.id.identificationMsg);
+        identificationMsg.setText(msg);
 
-        TextView successText = dialog.findViewById(R.id.successorFailedTextView);
-        successText.setText("Success");
+        TextView nameView = dialog.findViewById(R.id.nameView);
+        nameView.setText(name);
 
-        TextView textView = dialog.findViewById(R.id.dialogMessage);
-        textView.setText("Face successfully matched with database.");
+        TextView lastGivenDate = dialog.findViewById(R.id.lastGivenDate);
+        lastGivenDate.setText(date);
 
-        Button button = dialog.findViewById(R.id.btnDialogOk);
-        button.setOnClickListener(new View.OnClickListener() {
+        Button declineButton = dialog.findViewById(R.id.declineButton);
+        declineButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ImagePreviewAndVerifyActivity.this, NameEntryActivity.class);
-                startActivity(intent);
+                if (DataConnectivity.haveNetworkConnection(ImagePreviewAndVerifyActivity.this)) {
+                    sendStatusToServer(userId, "no");
+                } else {
+                    Toast.makeText(getApplicationContext(), "Please check your internet connectivity.", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+        Button approveButton = dialog.findViewById(R.id.approveButton);
+        approveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (DataConnectivity.haveNetworkConnection(ImagePreviewAndVerifyActivity.this)) {
+                    sendStatusToServer(userId, "yes");
+                } else {
+                    Toast.makeText(getApplicationContext(), "Please check your internet connectivity.", Toast.LENGTH_LONG).show();
+                }
             }
         });
 
         dialog.show();
     }
 
-    private void showFailedDialog(){
-        final Dialog dialog = new Dialog(ImagePreviewAndVerifyActivity.this);
-        dialog.setCancelable(false);
-        dialog.setContentView(R.layout.final_dialog_view);
+    private void sendStatusToServer(String userId, String status) {
+        progressDialog.show();
 
-        LinearLayout linearLayout = dialog.findViewById(R.id.successOrFailedLayout);
-        linearLayout.setBackgroundColor(Color.parseColor("#d50000"));
-
-        TextView successText = dialog.findViewById(R.id.successorFailedTextView);
-        successText.setTextColor(Color.parseColor("#eeeeee"));
-        successText.setText("Failed");
-
-        TextView textView = dialog.findViewById(R.id.dialogMessage);
-        textView.setText("Face did not match with database.");
-
-        Button button = dialog.findViewById(R.id.btnDialogOk);
-        button.setOnClickListener(new View.OnClickListener() {
+        Call<ResponseBody> call = apiInterface.sendStatus(userId, status);
+        call.enqueue(new Callback<ResponseBody>() {
             @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(ImagePreviewAndVerifyActivity.this, NameEntryActivity.class);
-                startActivity(intent);
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.code() == 200){
+                    progressDialog.dismiss();
+                    try {
+                        String responseMsg = response.body().string();
+                        JSONObject jsonObject = new JSONObject(responseMsg);
+                        boolean error = jsonObject.getBoolean("error");
+                        if (error){
+                            Toast.makeText(getApplicationContext(), "Please try again.", Toast.LENGTH_LONG).show();
+                        } else {
+                            Intent intent = new Intent(ImagePreviewAndVerifyActivity.this, NameEntryActivity.class);
+                            startActivity(intent);
+                        }
+                    } catch (IOException | JSONException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    progressDialog.dismiss();
+                    Toast.makeText(getApplicationContext(), "Please try again.", Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                progressDialog.dismiss();
+                Toast.makeText(getApplicationContext(), "Please try again later.", Toast.LENGTH_LONG).show();
             }
         });
-
-        dialog.show();
     }
 
     @Override
