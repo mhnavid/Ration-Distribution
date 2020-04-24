@@ -35,6 +35,7 @@ public class CaptureImageActivity extends AppCompatActivity {
 
     CameraView cameraView;
     ImageButton captureImageButton, cameraFacingButton;
+    private String name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +46,8 @@ public class CaptureImageActivity extends AppCompatActivity {
         captureImageButton  = findViewById(R.id.btnCaptureImage);
         cameraFacingButton  = findViewById(R.id.cameraFacingButton);
         cameraView.setLifecycleOwner(this);
+
+        name = getIntent().getStringExtra("name");
 
         cameraView.addCameraListener(new CameraListener() {
             @Override
@@ -57,6 +60,7 @@ public class CaptureImageActivity extends AppCompatActivity {
                 File path = saveBitmap(bOutput);
                 Intent intent = new Intent(CaptureImageActivity.this, ImagePreviewAndVerifyActivity.class);
                 intent.putExtra("imgPath", path.toString());
+                intent.putExtra("name", name);
                 startActivity(intent);
             }
 
@@ -80,7 +84,7 @@ public class CaptureImageActivity extends AppCompatActivity {
         captureImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                cameraView.takePicture();
+                cameraView.takePictureSnapshot();
             }
         });
     }

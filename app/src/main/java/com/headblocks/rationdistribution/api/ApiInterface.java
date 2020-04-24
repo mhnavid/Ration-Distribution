@@ -10,5 +10,6 @@ import retrofit2.http.Part;
 public interface ApiInterface {
     @Multipart
     @POST("search-face")
-    Call<ResponseBody> sendFaceImage(@Part MultipartBody.Part image);
+    Call<ResponseBody> sendFaceImage(@Part MultipartBody.Part image,
+                                     @Part("name") String name);
 }

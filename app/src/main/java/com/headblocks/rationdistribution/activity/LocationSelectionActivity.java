@@ -76,7 +76,7 @@ public class LocationSelectionActivity extends AppCompatActivity {
         locationSelectionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(LocationSelectionActivity.this, CaptureImageActivity.class);
+                Intent intent = new Intent(LocationSelectionActivity.this, NameEntryActivity.class);
                 startActivity(intent);
             }
         });

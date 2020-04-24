@@ -4,24 +4,32 @@
 
     <application
         android:allowBackup="true"
+        android:hardwareAccelerated="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:largeHeap="true"
         android:theme="@style/AppTheme"
-        android:usesCleartextTraffic="true"
-        android:networkSecurityConfig="@xml/network_security_config">
-        <activity android:name=".activity.ImagePreviewAndVerifyActivity"
+        android:usesCleartextTraffic="true">
+        <activity android:name=".activity.NameEntryActivity"></activity>
+
+        <activity
+            android:name=".activity.ImagePreviewAndVerifyActivity"
             android:configChanges="orientation"
-            android:screenOrientation="portrait"></activity>
-        <activity android:name=".activity.CaptureImageActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".activity.CaptureImageActivity"
             android:configChanges="orientation"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".activity.LocationSelectionActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.LocationSelectionActivity"
             android:configChanges="orientation"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".activity.MainActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.MainActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -30,6 +38,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
     </application>
     <uses-feature
         android:name="android.hardware.screen.portrait"
@@ -40,12 +51,13 @@
     <uses-feature
         android:name="android.hardware.camera.autofocus"
         android:required="true" />
-    <uses-feature android:name="android.hardware.wifi" />
 
+    <uses-feature android:name="android.hardware.wifi" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
 </manifest>

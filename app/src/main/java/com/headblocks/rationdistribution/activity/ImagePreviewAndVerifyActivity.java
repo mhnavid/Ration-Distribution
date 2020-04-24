@@ -61,7 +61,9 @@ public class ImagePreviewAndVerifyActivity extends AppCompatActivity {
         progressDialog.setMessage("Loading...");
         progressDialog.setCancelable(false);
 
-        final String imagePath = getIntent().getStringExtra("imgPath");
+        final String imagePath  = getIntent().getStringExtra("imgPath");
+        final String name       = getIntent().getStringExtra("name");
+
         if (imagePath != null){
             getImagePath(imagePath);
         }
@@ -70,7 +72,7 @@ public class ImagePreviewAndVerifyActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (DataConnectivity.haveNetworkConnection(getApplicationContext())){
-                    sendImageToServer(imagePath);
+                    sendImageToServer(imagePath, name);
                 } else {
                     Toast.makeText(getApplicationContext(), "Please check your internet connectivity.", Toast.LENGTH_LONG).show();
                 }
@@ -81,6 +83,7 @@ public class ImagePreviewAndVerifyActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ImagePreviewAndVerifyActivity.this, CaptureImageActivity.class);
+                intent.putExtra("name", name);
                 startActivity(intent);
             }
         });
@@ -88,17 +91,17 @@ public class ImagePreviewAndVerifyActivity extends AppCompatActivity {
 
 
 
-    private void sendImageToServer(String imagePath){
+    private void sendImageToServer(String imagePath, final String name){
         progressDialog.show();
         if (!imagePath.equals("")){
             File file = new File(imagePath);
             RequestBody fileReqBody = RequestBody.create(MediaType.parse("image/*"), file);
             MultipartBody.Part part = MultipartBody.Part.createFormData("unknown_face", file.getName(), fileReqBody);
-            Call<ResponseBody> call = apiInterface.sendFaceImage(part);
+            Call<ResponseBody> call = apiInterface.sendFaceImage(part, name);
             call.enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                    Log.d("response", String.valueOf(response));
+                    Log.d("response", String.valueOf(name));
                     if (response.code() == 200){
                         progressDialog.dismiss();
                         try {
@@ -127,6 +130,7 @@ public class ImagePreviewAndVerifyActivity extends AppCompatActivity {
                 @Override
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
                     progressDialog.dismiss();
+                    Log.d("response", String.valueOf(t.getMessage()));
                     Toast.makeText(getApplicationContext(), "Please try again later.", Toast.LENGTH_LONG).show();
                 }
             });
@@ -159,7 +163,7 @@ public class ImagePreviewAndVerifyActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ImagePreviewAndVerifyActivity.this, CaptureImageActivity.class);
+                Intent intent = new Intent(ImagePreviewAndVerifyActivity.this, NameEntryActivity.class);
                 startActivity(intent);
             }
         });
@@ -186,7 +190,7 @@ public class ImagePreviewAndVerifyActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ImagePreviewAndVerifyActivity.this, CaptureImageActivity.class);
+                Intent intent = new Intent(ImagePreviewAndVerifyActivity.this, NameEntryActivity.class);
                 startActivity(intent);
             }
         });

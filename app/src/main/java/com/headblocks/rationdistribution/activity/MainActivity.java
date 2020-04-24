@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         if (!getSavedName().equals("")){
-            Intent intent = new Intent(MainActivity.this, CaptureImageActivity.class);
+            Intent intent = new Intent(MainActivity.this, NameEntryActivity.class);
             startActivity(intent);
         }
 
