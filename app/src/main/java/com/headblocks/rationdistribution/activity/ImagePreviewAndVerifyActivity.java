@@ -95,11 +95,11 @@ public class ImagePreviewAndVerifyActivity extends AppCompatActivity {
             File file = new File(imagePath);
             RequestBody fileReqBody = RequestBody.create(MediaType.parse("image/*"), file);
             MultipartBody.Part part = MultipartBody.Part.createFormData("unknown_face", file.getName(), fileReqBody);
-            Call<ResponseBody> call = apiInterface.sendFaceImage(part, name);
+            RequestBody userName = RequestBody.create(MediaType.parse("text/plain"),name);
+            Call<ResponseBody> call = apiInterface.sendFaceImage(part, userName);
             call.enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                    Log.d("response", String.valueOf(name));
                     if (response.code() == 200){
                         progressDialog.dismiss();
                         try {

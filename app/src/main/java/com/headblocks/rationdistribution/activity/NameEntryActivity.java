@@ -15,7 +15,7 @@ public class NameEntryActivity extends AppCompatActivity {
 
     TextInputEditText nameEditText;
     TextInputLayout enterNameEditText;
-    Button proceedButton;
+    Button proceedButton, nameSkipButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +25,7 @@ public class NameEntryActivity extends AppCompatActivity {
         nameEditText = findViewById(R.id.nameEditText);
         proceedButton = findViewById(R.id.proceedButton);
         enterNameEditText = findViewById(R.id.enterNameTextField);
+        nameSkipButton = findViewById(R.id.nameSkipButton);
 
         proceedButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -36,6 +37,15 @@ public class NameEntryActivity extends AppCompatActivity {
                     intent.putExtra("name", nameEditText.getText().toString().trim());
                     startActivity(intent);
                 }
+            }
+        });
+
+        nameSkipButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(NameEntryActivity.this, CaptureImageActivity.class);
+                intent.putExtra("name", "");
+                startActivity(intent);
             }
         });
     }

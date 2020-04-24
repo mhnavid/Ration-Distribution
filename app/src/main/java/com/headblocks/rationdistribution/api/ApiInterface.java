@@ -1,11 +1,10 @@
 package com.headblocks.rationdistribution.api;
 
-import com.google.gson.JsonObject;
 
 import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
-import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.Multipart;
@@ -16,7 +15,7 @@ public interface ApiInterface {
     @Multipart
     @POST("search-face")
     Call<ResponseBody> sendFaceImage(@Part MultipartBody.Part image,
-                                     @Part("name") String name);
+                                     @Part("name") RequestBody name);
 
     @FormUrlEncoded
     @POST("api/v1/date-update")
